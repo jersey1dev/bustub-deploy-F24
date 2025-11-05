@@ -78,18 +78,72 @@
         overflow: hidden;
     }
 
-    /* ADD THIS NEW RULE */
     #loading-splash {
         font-size: clamp(1.2rem, 2.5vw, 1.8rem);
         line-height: 1.6;
+        white-space: normal;
+    }
+
+
+    .tooltip-container {
+        position: relative; /* Establishes a positioning context */
+        display: inline-block;
+        cursor: help; /* Changes the mouse to a help icon */
+        margin-left: 4px; /* A little space from the text */
+    }
+
+    /* This is the hidden explanation box */
+    .tooltip-text {
+        visibility: hidden;
+        opacity: 0;
+        width: 280px; /* Fixed width for the popup */
+        background-color: #333; /* Dark background */
+        color: #fff; /* White text */
+        text-align: left; /* Normal text alignment */
+        font-size: 0.9rem; /* Slightly smaller font */
+        border-radius: 6px;
+        padding: 10px;
+        transition: opacity 0.3s;
+
+        /* Positioning the popup box above the (?) */
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* 125% "above" the (?) */
+        left: 50%;
+        margin-left: -140px; /* Center it (width / 2) */
+    }
+
+    /* This creates the little arrow below the popup */
+    .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%; /* At the bottom of the tooltip */
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+
+    /* This shows the popup on hover */
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
     }
 </style>
 </head>
 
 <body class="splash-loading">
     <div id="loading-splash">
-        You have to first refresh the page before accessing the webshell.
-     </div>
+    You have to first refresh the page before accessing the webshell.
+    <span class="tooltip-container">
+        <sup>Why?</sup>
+        <span class="tooltip-text">
+            <p>Bustub's multithreaded implementation cannot be compiled into wasm and run on browser in a straightforward way. </p>
+            <p>The workaround requires a secure browser environment (using `SharedArrayBuffer`) to run the database's multithreaded code. This one-time refresh activates it. </p>
+        </span>
+    </span>
+    </div>
 </body>
 
 <style>
