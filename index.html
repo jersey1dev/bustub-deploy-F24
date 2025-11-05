@@ -16,8 +16,9 @@
     <!-- CJK characters -->
     <script src="https://cdn.jsdelivr.net/gh/jcubic/static/js/wcwidth.js"></script>
     <script>
+    const reloading = sessionStorage.getItem('reloading_for_sw');
       if (!crossOriginIsolated) {
-        navigator.serviceWorker.register('coop-coep-sw.js')
+        navigator.serviceWorker.register('coopcoepsw.js')
           .then((registration) => {
             console.log('Service Worker registered, reloading...');
             // Force a reload to apply the headers
@@ -28,6 +29,13 @@
           .catch((error) => {
             console.error('Service Worker registration failed:', error);
           });
+        if (reloading) {
+          console.error('Reloaded, but still not crossorigin isolated. Service worker failed.');
+        } else {
+          console.log('Registering service worker and reloading...');
+          sessionStorage.setItem('reloading_for_sw', 'true');
+          navigator.serviceWorker.register('coopcoepsw.js').then(() => location.reload());
+        }
       } else {
     // We ARE isolated. It's safe to load the WASM.
         console.log('Page is cross-origin isolated. Loading WASM module.');
@@ -55,9 +63,33 @@
     <meta property="twitter:data1" content="Fall 2024" />
     <meta property="twitter:label1" content="SQL Database?" />
     <meta property="twitter:data1" content="You Know It!" />
+    <style>
+    body.splash-loading {
+        margin: 0;
+        padding: 20px;
+        font-family: "Source Code Pro", monospace;
+        background-color: #FFFBF5;
+        color: #4A4A4A;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    /* ADD THIS NEW RULE */
+    #loading-splash {
+        font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+        line-height: 1.6;
+    }
+</style>
 </head>
 
-<body>
+<body class="splash-loading">
+    <div id="loading-splash">
+        You have to first refresh the page before accessing the webshell.
+     </div>
 </body>
 
 <style>
@@ -122,6 +154,9 @@
     }
 
     $(document).ready(() => {
+        $('#loading-splash').hide();
+        $('body').removeClass('splash-loading');
+
         $.terminal.syntax('sql')
         $.terminal.prism_formatters = {
             prompt: false,
