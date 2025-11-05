@@ -17,33 +17,26 @@
     <script src="https://cdn.jsdelivr.net/gh/jcubic/static/js/wcwidth.js"></script>
     <script>
     const reloading = sessionStorage.getItem('reloading_for_sw');
-      if (!crossOriginIsolated) {
-        navigator.serviceWorker.register('coopcoepsw.js')
-          .then((registration) => {
-            console.log('Service Worker registered, reloading...');
-            // Force a reload to apply the headers
-            if (registration.active) {
-              location.reload();
-            }
-          })
-          .catch((error) => {
-            console.error('Service Worker registration failed:', error);
-          });
+
+    if (!crossOriginIsolated) {
         if (reloading) {
-          console.error('Reloaded, but still not crossorigin isolated. Service worker failed.');
+            console.error('Reloaded, but still not cross-origin isolated. Service worker failed.');
         } else {
-          console.log('Registering service worker and reloading...');
-          sessionStorage.setItem('reloading_for_sw', 'true');
-          navigator.serviceWorker.register('coopcoepsw.js').then(() => location.reload());
+            console.log('Registering service worker and reloading...');
+            sessionStorage.setItem('reloading_for_sw', 'true');
+            navigator.serviceWorker.register('coopcoepsw.js') // <-- Use your filename
+                .then(() => location.reload()); // Reload immediately after registration
         }
-      } else {
-    // We ARE isolated. It's safe to load the WASM.
+    } else {
+        sessionStorage.removeItem('reloading_for_sw');
+
         console.log('Page is cross-origin isolated. Loading WASM module.');
         var wasmScript = document.createElement('script');
         wasmScript.src = 'bustub-wasm-shell.js';
+        wasmScript.async = false;
         document.head.appendChild(wasmScript);
     }
-    </script>
+</script>
     <!-- Roboto Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -135,12 +128,11 @@
 
 <body class="splash-loading">
     <div id="loading-splash">
-    You have to first refresh the page before accessing the webshell.
+    Preparing the secure environment... This page will reload automatically.
     <span class="tooltip-container">
-        <sup>Why?</sup>
+        <sup>Why?</sup> 
         <span class="tooltip-text">
-            <p>Bustub's multithreaded implementation cannot be compiled into wasm and run on browser in a straightforward way. </p>
-            <p>The workaround requires a secure browser environment (using `SharedArrayBuffer`) to run the database's multithreaded code. This one-time refresh activates it. </p>
+            This page requires a secure browser environment (using `SharedArrayBuffer`) to run the database's multithreaded code. A one-time reload is needed to to activate it.
         </span>
     </span>
     </div>
@@ -182,6 +174,7 @@
 <!-- <script src="bustub-wasm-shell.js"></script> -->
 
 <script type="text/javascript">
+    var Module = typeof Module !== 'undefined' ? Module : {};
     const BUSTUB_PUBLIC_VERSION_VAR = "my-local-build-1762313674"
     const BUSTUB_PRIVATE_VERSION_VAR = "my-local-build-1762313674"
     const BUSTUB_BUILD_TIME_VAR = "20251105"
